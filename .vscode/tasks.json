@@ -1,0 +1,24 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "shell",
+			"command": "jsdoc ./dist -d ./docs",
+			"label": "Produce document",
+			"detail": "install dependencies from package",
+			"dependsOn":["Produce dist"]
+		},
+		{
+			"type": "npm",
+			"script": "test",
+			"label": "Produce Test Result",
+			"detail": "install dependencies from package"
+		},
+		{
+			"type":"shell",
+			"command": "webpack",
+			"label": "Produce dist",
+			"detail": "install dependencies from package"
+		}
+	]
+}
