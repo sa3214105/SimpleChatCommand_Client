@@ -3,13 +3,9 @@ export * from "./CommandStructs/GetUsersStruct";
 export * from "./CommandStructs/LoginStruct";
 export * from "./CommandStructs/LogoutStruct";
 export * from "./CommandStructs/MessageStruct";
-export interface IUserStruct{
-    IsLoginIn():boolean;
-    GetID():string;
-}
 export interface IMessageSender{
-    CreateUser():IUserStruct;
-    SendMessage(sender:IUserStruct,command:ICommandAble):void;
+    SendMessage(command:ICommandAble):Promise<void>;
+    SetMessageHandler(handler:Function):void;
 }
 export class CommandStruct{
     Command:String;

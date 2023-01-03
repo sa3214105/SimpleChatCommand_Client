@@ -5,7 +5,7 @@ module.exports = {
   entry: "./Src/index.ts",
   output: {
     path:__dirname+"/dist",
-    filename: "release.mjs",
+    filename: "index.js",
     library: {
       type:"module"
     }

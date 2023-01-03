@@ -1,34 +1,34 @@
 import * as BasicStruct from "./SimpleChatCommand_Client/BasicStruct";
-//For Web Browser
+import WebSocket from "ws";
 export class MessageSender_WebSocket implements BasicStruct.IMessageSender{
-    private m_WebSocket:WebSocket
+    private m_WebSocket:WebSocket;
     private m_MessageHandler:Function = console.log;
     private m_WaitConnect:Promise<void>;
     private SetConnect:Function|null = null;
     private SetDisconnect:Function|null = null;
-    constructor(arg:string|WebSocket){
-        if(arg instanceof WebSocket){
-            this.m_WebSocket = arg;
+    constructor(param:WebSocket|string){
+        if(param instanceof WebSocket){
+            this.m_WebSocket = param;
         }else{
-            this.m_WebSocket = new WebSocket(arg);
+            this.m_WebSocket = new WebSocket(param);
         }
         this.m_WaitConnect = new Promise((resolve,rejects)=>{
             this.SetConnect = resolve;
             this.SetDisconnect = rejects;
         })
-        this.m_WebSocket.onopen = ()=>{
+        this.m_WebSocket.on("open",()=>{
             if(this.SetConnect!==null){
                 this.SetConnect();
             }
-        };
-        this.m_WebSocket.onclose = ()=>{
+        });
+        this.m_WebSocket.on("close",()=>{
             if(this.SetDisconnect!==null){
                 this.SetDisconnect();
             }
-        };
-        this.m_WebSocket.onmessage = msg=>{
-            this.m_MessageHandler(msg.data);
-        };
+        })
+        this.m_WebSocket.on("message",msg=>{
+            this.m_MessageHandler(msg.toString());
+        });
     }
     SetMessageHandler(handler: Function): void {
         this.m_MessageHandler = handler;

@@ -3,10 +3,10 @@
 	"tasks": [
 		{
 			"type": "shell",
-			"command": "jsdoc ./dist -d ./docs",
+			"command": "cd Src; typedoc --out /docs index.ts",
 			"label": "Produce document",
 			"detail": "install dependencies from package",
-			"dependsOn":["Produce dist"]
+			//"dependsOn":["Produce dist"]
 		},
 		{
 			"type": "npm",

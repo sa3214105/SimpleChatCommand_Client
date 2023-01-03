@@ -1,43 +1,44 @@
 
-export * from "./BasicStruct";
-import * as SSC_Struct from "./BasicStruct";
+export * from "./SimpleChatCommand_Client/BasicStruct";
+import * as SSC_Struct from "./SimpleChatCommand_Client/BasicStruct";
+/**
+ * @class
+ * test
+ */
 export class SimpleChatCommand_Client{
-    m_MessageSender:SSC_Struct.IMessageSender;
-    m_UserStruct:SSC_Struct.IUserStruct;
+    private m_MessageSender:SSC_Struct.IMessageSender;
     public constructor(messageSender:SSC_Struct.IMessageSender){
         this.m_MessageSender=messageSender;
-        this.m_UserStruct=messageSender.CreateUser();
     }
-    public Login(userID:string,password:string):void{
+    public async Login(userID:string,password:string){
         this.m_MessageSender.SendMessage(
-            this.m_UserStruct,
             new SSC_Struct.LoginStruct(userID,password)
         );
     }
-    public Logout():void{
+    public async Logout(){
         this.m_MessageSender.SendMessage(
-            this.m_UserStruct,
             new SSC_Struct.LogoutStruct()
         );
     }
-    public SendMessage(receiverID:string,message:string):void{
+    public async SendMessage(receiverID:string,message:string){
         this.m_MessageSender.SendMessage(
-            this.m_UserStruct,
             new SSC_Struct.MessageStruct(receiverID,message)
         )
     }
-    protected SendCommand(command:SSC_Struct.ICommandAble):void{
+    protected async SendCommand(command:SSC_Struct.ICommandAble){
         this.m_MessageSender.SendMessage(
-            this.m_UserStruct,
             command
         );
     }
-    public Broadcast(broadcast:string):void{
+    public async Broadcast(broadcast:string){
         this.m_MessageSender.SendMessage(
-            this.m_UserStruct,
             new SSC_Struct.BroadcastStruct(broadcast)
         )
     }
-   
+    public On(eventName:string,handler:Function){
+        if(eventName === "message"){
+            this.m_MessageSender.SetMessageHandler(handler);
+        }
+    }
     public SendCustomerCommand = this.SendCommand;
 }
