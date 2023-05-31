@@ -22,7 +22,11 @@ test("SendMessage",async()=>{
         sscClient.On("message",res);
         sscClient.SendMessage("","testMsg");
     });
-    expect(await waitMsg).toBe("testMsg");
+    expect(await waitMsg).toEqual({
+        Sender:"test",
+        Receiver:"test",
+        Message:"testMsg"
+    });
 })
 
 //TODO

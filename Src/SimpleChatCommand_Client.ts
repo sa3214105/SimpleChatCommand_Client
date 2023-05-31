@@ -12,14 +12,22 @@ export class SimpleChatCommand_Client{
     public constructor(messageSender:SSC_Struct.IMessageSender){
         this.m_MessageSender = messageSender;
         this.m_EventManager = new EventManager();
-        this.m_MessageSender.SetMessageHandler((result)=>{
+        this.m_MessageSender.SetEventHandler((result)=>{
             try{
                 this.m_EventManager.DispenserEvent(result)
             }catch(e){
                 console.error(e);
-                this.WriteErrorLog("internal error");
+                this.WriteErrorLog("internal error 0");
             }
         });
+        this.m_MessageSender.SetMessageHandle(messagePackage=>{
+            try{
+                this.m_EventManager.DispenserMessage(messagePackage);
+            }catch(e){
+                console.error(e);
+                this.WriteErrorLog("internal error 1");
+            }
+        })
     }
     private WriteErrorLog(msg:string){
         console.error(msg);
@@ -55,43 +63,50 @@ export class SimpleChatCommand_Client{
             setTimeout(rej.bind(this,new Error("Time out")),this.m_timeOut);
         });
     }
-    public On(eventName:string,listener:(msg:string)=>any){
+    public On(eventName:string,listener:(messagePackage:SSC_Struct.MessagePackageStruct)=>any){
         if(eventName === "message"){
-            this.m_EventManager.AddEventListener("SendMessage",(result)=>{
-                if(result as SSC_Struct.MessageResult){
-                    listener((result as SSC_Struct.MessageResult).Data.message);
-                }
+            this.m_EventManager.AddMessageListener((messagePackage)=>{
+                listener(messagePackage);
             })
         }
     }
     public SendCustomerCommand = this.SendCommand;
 }
 export class EventManager{
-    private m_ListenerMap:Map<string,((resultStruct:SSC_Struct.ResultStruct)=>any)[]> = new Map();
-
-    DispenserEvent(resultStruct:SSC_Struct.ResultStruct){
-        for(const [key,listeners] of this.m_ListenerMap.entries()){
+    private m_EventListenerMap:Map<string,((resultStruct:SSC_Struct.CommandResultStruct)=>any)[]> = new Map();
+    private m_MessageListens:Array<(resultStruct:SSC_Struct.MessagePackageStruct)=>any>=[];
+    DispenserEvent(resultStruct:SSC_Struct.CommandResultStruct){
+        for(const [key,listeners] of this.m_EventListenerMap.entries()){
             if(resultStruct.Command == key){
                 listeners.forEach(listener=>listener(resultStruct));
             }
         }
     }
 
-    AddEventListener(eventType:string,listener:(resultStruct:SSC_Struct.ResultStruct)=>any,listenOnce:boolean=false){
+    DispenserMessage(messagePackage:SSC_Struct.MessagePackageStruct){
+        for(let listener of this.m_MessageListens){
+            listener(messagePackage);
+        }
+    }
+
+    AddEventListener(eventType:string,listener:(resultStruct:SSC_Struct.CommandResultStruct)=>any,listenOnce:boolean=false){
         let handler = listener;
         if(listenOnce){
             handler=(result)=>{
                 listener(result);
-                let listeners = this.m_ListenerMap.get(eventType);
-                this.m_ListenerMap.set(eventType,listeners?.filter((_listener)=>_listener!=handler)??[]);
+                let listeners = this.m_EventListenerMap.get(eventType);
+                this.m_EventListenerMap.set(eventType,listeners?.filter((_listener)=>_listener!=handler)??[]);
             }
         }
 
-        let listeners = this.m_ListenerMap.get(eventType);
+        let listeners = this.m_EventListenerMap.get(eventType);
         if(listeners!==undefined){
             listeners.push(handler);
         }else{
-            this.m_ListenerMap.set(eventType,[handler]);
+            this.m_EventListenerMap.set(eventType,[handler]);
         }
+    }
+    AddMessageListener(listener:(resultStruct:SSC_Struct.MessagePackageStruct)=>any){
+        this.m_MessageListens.push(listener);
     }
 }

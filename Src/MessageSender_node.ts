@@ -2,7 +2,8 @@ import * as BasicStruct from "./SimpleChatCommand_Client/BasicStruct";
 import WebSocket from "ws";
 export class MessageSender_WebSocket implements BasicStruct.IMessageSender{
     private m_WebSocket:WebSocket;
-    private m_MessageHandler:(result:BasicStruct.ResultStruct)=>any = console.log;
+    private m_EventHandler:(result:BasicStruct.CommandResultStruct)=>any = console.log;
+    private m_MessageHandler:(messagePackage:BasicStruct.MessagePackageStruct)=>any=console.log;
     private m_WaitConnect:Promise<void>;
     private SetConnect:Function|null = null;
     private SetDisconnect:Function|null = null;
@@ -27,11 +28,20 @@ export class MessageSender_WebSocket implements BasicStruct.IMessageSender{
             }
         })
         this.m_WebSocket.on("message",msg=>{
-            this.m_MessageHandler(JSON.parse(msg.toString()));
+            let data = JSON.parse(msg.toString());
+            if(BasicStruct.isCommandResultStruct(data)){
+                this.m_EventHandler(data);
+            }else if(BasicStruct.isMessagePackageStruct(data)){
+                this.m_MessageHandler(data);
+            }
         });
     }
-    SetMessageHandler(result:(result:BasicStruct.ResultStruct)=>any): void {
-        this.m_MessageHandler = result;
+    
+    SetMessageHandle(handler: (messagePackage: BasicStruct.MessagePackageStruct) => any): void {
+        this.m_MessageHandler = handler;
+    }
+    SetEventHandler(handler:(result:BasicStruct.CommandResultStruct)=>any): void {
+        this.m_EventHandler = handler;
     }
     SendMessage(command: BasicStruct.ICommandAble):Promise<void>{
         return new Promise((resolve,rejects)=>{

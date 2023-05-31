@@ -1,9 +1,9 @@
-import { ResultStruct } from "../BasicStruct";
+import { CommandResultStruct } from "../BasicStruct";
 
-export type MessageResult =ResultStruct & {
+export type SendMessageResult =CommandResultStruct & {
     Data: { message: string};
 }
 
-export type LoginResult = ResultStruct & {
+export type LoginResult = CommandResultStruct & {
     Data:string|{User:string};
 }

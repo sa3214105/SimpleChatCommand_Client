@@ -6,7 +6,8 @@ export * from "./CommandStructs/MessageStruct";
 export * from "./CommandStructs/ResultStruct";
 export interface IMessageSender{
     SendMessage(command:ICommandAble):Promise<void>;
-    SetMessageHandler(result:(result:ResultStruct)=>any):void;
+    SetEventHandler(handler:(result:CommandResultStruct)=>any):void;
+    SetMessageHandle(handler:(messagePackage:MessagePackageStruct)=>any):void;
 }
 export class CommandStruct{
     Command:string;
@@ -20,9 +21,26 @@ export interface ICommandAble{
     GetCommandObj():CommandStruct;
 }
 
-export type ResultStruct = {
+export interface CommandResultStruct {
     Command:string;
     State:string;
+}
+export function isCommandResultStruct(obj:any):obj is CommandResultStruct{
+    return  obj &&
+            typeof obj.Command === "string" &&
+            typeof obj.State === "string";
+}
+
+export interface MessagePackageStruct {
+    Sender:string;
+    Receiver:string;
+    Message:string;
+}
+export function isMessagePackageStruct(obj:any):obj is MessagePackageStruct{
+    return  obj &&
+            typeof obj.Sender === "string" &&
+            typeof obj.Receiver === "string" &&
+            typeof obj.Message === "string";
 }
 
 // export function MessageResult(MessageResult: any, handler: (msg: string) => any) {
