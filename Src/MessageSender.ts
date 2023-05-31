@@ -2,7 +2,7 @@ import * as BasicStruct from "./SimpleChatCommand_Client/BasicStruct";
 //For Web Browser
 export class MessageSender_WebSocket implements BasicStruct.IMessageSender{
     private m_WebSocket:WebSocket
-    private m_MessageHandler:Function = console.log;
+    private m_MessageHandler:(result:BasicStruct.ResultStruct)=>any = console.log;
     private m_WaitConnect:Promise<void>;
     private SetConnect:Function|null = null;
     private SetDisconnect:Function|null = null;
@@ -26,12 +26,14 @@ export class MessageSender_WebSocket implements BasicStruct.IMessageSender{
                 this.SetDisconnect();
             }
         };
-        this.m_WebSocket.onmessage = msg=>{
-            this.m_MessageHandler(msg.data);
+        this.m_WebSocket.onmessage = (event:MessageEvent)=>{
+            if(event.data as BasicStruct.ResultStruct){
+                this.m_MessageHandler(event.data);
+            }
         };
     }
-    SetMessageHandler(handler: Function): void {
-        this.m_MessageHandler = handler;
+    SetMessageHandler(result:(result:BasicStruct.ResultStruct)=>any): void {
+        this.m_MessageHandler = result;
     }
     SendMessage(command: BasicStruct.ICommandAble):Promise<void>{
         return new Promise((resolve,rejects)=>{
