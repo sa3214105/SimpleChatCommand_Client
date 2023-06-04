@@ -6,7 +6,7 @@ import * as SSC_Struct from "./SimpleChatCommand_Client/BasicStruct";
  * test
  */
 export class SimpleChatCommand_Client{
-    private m_timeOut=5000;
+    private m_timeOut=10;
     private m_MessageSender:SSC_Struct.IMessageSender;
     private m_EventManager:EventManager;
     public constructor(messageSender:SSC_Struct.IMessageSender){
@@ -48,14 +48,14 @@ export class SimpleChatCommand_Client{
         );
     }
     public async Broadcast(broadcast:string){
-        return await this.m_MessageSender.SendMessage(
+        return await this.SendCommand(
             new SSC_Struct.BroadcastStruct(broadcast)
         );
     }
     protected async SendCommand(command:SSC_Struct.ICommandAble):Promise<boolean>{
         return new Promise((res,rej)=>{
-            this.m_EventManager.AddEventListener(command.GetCommandObj().Command,(loginResult)=>{
-                res(loginResult.State==="success");
+            this.m_EventManager.AddEventListener(command.GetCommandObj().Command,(result)=>{
+                res(result.State==="success");
             },true);
             this.m_MessageSender.SendMessage(
                 command

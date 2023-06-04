@@ -27,3 +27,19 @@ test("AddEventListener_Once",()=>{
     });
     expect(counter).toBe(1);
 })
+test("AddMessageListener",async ()=>{
+    let eventListener = new SCC_C.EventManager();
+    let messageTask = new Promise(res=>{
+        eventListener.AddMessageListener(res);
+        eventListener.DispenserMessage({
+            Sender:"sender1",
+            Receiver:"receiver1",
+            Message:"msg"
+        });
+    });
+    expect(await messageTask).toEqual({
+        Sender:"sender1",
+        Receiver:"receiver1",
+        Message:"msg"
+    });
+})
