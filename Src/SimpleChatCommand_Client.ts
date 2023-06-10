@@ -33,32 +33,41 @@ export class SimpleChatCommand_Client{
     private WriteErrorLog(msg:string){
         console.error(msg);
     }
-    public async Login(userID:string,password:string):Promise<boolean>{
-        return await this.SendCommand(
+    public async Login(userID:string,password:string){
+        return this.SendCommand(
             new SSC_Struct.LoginStruct(userID,password)
-        );
+        ).then(result=>result.State === "success");
     }
     public async Logout(){
-        return await this.SendCommand(
+        const result = await this.SendCommand(
             new SSC_Struct.LogoutStruct()
         );
+        return result.State === "success";
     }
     public async SendMessage(receiverID:string,message:string){
-        return await this.SendCommand(
-            new SSC_Struct.MessageStruct(receiverID,message)
+        const result = await this.SendCommand(
+            new SSC_Struct.MessageStruct(receiverID, message)
         );
+        return result.State === "success";
     }
     public async Broadcast(broadcast:string){
-        return await this.SendCommand(
+        const result = await this.SendCommand(
             new SSC_Struct.BroadcastStruct(broadcast)
         );
+        return result.State === "success";
     }
-    protected async SendCommand(command:SSC_Struct.ICommandAble):Promise<boolean>{
+    public async GetUsers(){
+        const result = await this.SendCommand(
+            new SSC_Struct.GetUsersStruct()
+        ) as SSC_Struct.GetUserResult;
+        return result.Data;
+    }
+    protected async SendCommand(command:SSC_Struct.ICommandAble):Promise<SSC_Struct.CommandResultStruct>{
         return new Promise((res,rej)=>{
             let timeOutHandler = setTimeout(rej.bind(this,new Error("Time out")),this.m_TimeOut);
             this.m_EventManager.AddEventListener(command.GetCommandObj().Command,(result)=>{
                 clearTimeout(timeOutHandler);
-                res(result.State==="success");
+                res(result);
             },true);
             this.m_MessageSender.SendMessage(
                 command

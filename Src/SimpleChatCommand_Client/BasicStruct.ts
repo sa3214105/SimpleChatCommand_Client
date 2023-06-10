@@ -42,7 +42,3 @@ export function isMessagePackageStruct(obj:any):obj is MessagePackageStruct{
             typeof obj.Receiver === "string" &&
             typeof obj.Message === "string";
 }
-
-// export function MessageResult(MessageResult: any, handler: (msg: string) => any) {
-//     throw new Error("Function not implemented.");
-// }

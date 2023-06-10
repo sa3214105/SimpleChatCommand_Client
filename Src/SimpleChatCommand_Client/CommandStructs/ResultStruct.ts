@@ -7,3 +7,7 @@ export type SendMessageResult =CommandResultStruct & {
 export type LoginResult = CommandResultStruct & {
     Data:string|{User:string};
 }
+
+export type GetUserResult = CommandResultStruct & {
+    Data:string[];
+}

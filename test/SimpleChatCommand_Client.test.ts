@@ -40,3 +40,14 @@ test("SendBroadCast",async()=>{
         Message:"testMsg"
     });
 })
+
+test("GetUsers",async()=>{
+    let sender = new TestClass.MessageSender();
+    let sscClient = new SCC_C.SimpleChatCommand_Client(sender);
+    expect(await sscClient.Login("user1","p@ssw0rd")).toBe(true);
+    expect(await sscClient.Login("user2","p@ssw0rd_wrong")).toBe(false);    
+    expect(await sscClient.GetUsers()).toEqual(["user1"]);
+    expect(await sscClient.Logout()).toBe(true);
+    expect(await sscClient.Login("user3","p@ssw0rd"));
+    expect(await sscClient.GetUsers()).toEqual(["user3"]);
+})
