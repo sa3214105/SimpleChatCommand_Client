@@ -15,8 +15,8 @@ test("SendMessage",async()=>{
     expect(await sscClient.Login("user1","p@ssw0rd")).toBe(true);
     let waitMsg=new Promise((res,rej)=>{
         sscClient.On("message",res);
-        sscClient.SendMessage("user1","testMsg");
         setTimeout(rej.bind(this,new Error("Time out")),500);
+        sscClient.SendMessage("user1","testMsg").catch(rej);
     });
     expect(await waitMsg).toEqual({
         Sender:"user1",
@@ -29,9 +29,10 @@ test("SendBroadCast",async()=>{
     let sender = new TestClass.MessageSender();
     let sscClient = new SCC_C.SimpleChatCommand_Client(sender);
     expect(await sscClient.Login("user1","p@ssw0rd")).toBe(true);
-    let waitBroadCast=new Promise(res=>{
+    let waitBroadCast=new Promise((res,rej)=>{
         sscClient.On("message",res);
-        sscClient.Broadcast("testMsg");
+        setTimeout(rej.bind(this,new Error("Time out")),500);
+        sscClient.Broadcast("testMsg").catch(rej);
     })
     expect(await waitBroadCast).toEqual({
         Sender:"user1",

@@ -1,12 +1,13 @@
 
 export * from "./SimpleChatCommand_Client/BasicStruct";
+import { clearTimeout } from "timers";
 import * as SSC_Struct from "./SimpleChatCommand_Client/BasicStruct";
 /**
  * @class
  * test
  */
 export class SimpleChatCommand_Client{
-    private m_timeOut=10;
+    private m_TimeOut=500;
     private m_MessageSender:SSC_Struct.IMessageSender;
     private m_EventManager:EventManager;
     public constructor(messageSender:SSC_Struct.IMessageSender){
@@ -54,13 +55,15 @@ export class SimpleChatCommand_Client{
     }
     protected async SendCommand(command:SSC_Struct.ICommandAble):Promise<boolean>{
         return new Promise((res,rej)=>{
+            let timeOutHandler = setTimeout(rej.bind(this,new Error("Time out")),this.m_TimeOut);
             this.m_EventManager.AddEventListener(command.GetCommandObj().Command,(result)=>{
+                clearTimeout(timeOutHandler);
                 res(result.State==="success");
             },true);
             this.m_MessageSender.SendMessage(
                 command
-            );
-            setTimeout(rej.bind(this,new Error("Time out")),this.m_timeOut);
+            ).catch(rej);
+            
         });
     }
     public On(eventName:string,listener:(messagePackage:SSC_Struct.MessagePackageStruct)=>any){
